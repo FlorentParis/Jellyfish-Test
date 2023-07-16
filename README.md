@@ -24,3 +24,7 @@ Pour cloner le projet depuis le dépôt GitHub, suivez les étapes suivantes :
    npm run dev
 
 Ces commandes lancerons le projet en mode développement sur votre machine.
+
+## Infos supp
+
+J'ai pour l'instant laissé intentionnellement mon api_key de OpenWeather, je mettrais ce repo en privée ou modifierais mon code sous peu. 
