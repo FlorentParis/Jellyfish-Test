@@ -20,6 +20,7 @@ Pour cloner le projet depuis le dépôt GitHub, suivez les étapes suivantes :
    ```bash
    git clone https://github.com/FlorentParis/Jellyfish-Test.git
    cd Jellyfish-Test
+   npm i
    npm run dev
 
 Ces commandes lancerons le projet en mode développement sur votre machine.
