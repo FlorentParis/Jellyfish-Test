@@ -1,95 +1,90 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+
+import react, { useEffect, useState } from 'react';
+import styles from './page.module.css';
+import './style/weathericons.css';
+import cities from './assets/cities-fr.json';
+import getWeather from './hooks/getWeather';
+import Image from 'next/image';
 
 export default function Home() {
+  interface cityInterface {
+    id: number;
+    lat: number;
+    lon: number;
+    nm: string;
+  }
+
+  const [citiesList, setCitiesList] = useState<Array<cityInterface>>([]);
+  const [citySelected, setCitySelected] = useState<number>(100);
+  const [dataCitySelected, setDataCitySelected] = useState<any>('loading');
+
+  useEffect(() => {
+    setCitiesList(cities);
+    setCitySelected(0);
+  }, [cities]);
+
+  useEffect(() => {
+    getWeather(citiesList[citySelected])?.then((res) => {
+      setDataCitySelected(res);
+    });
+  }, [citySelected]);
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <section className={styles.section}>
+        <div className={styles.selection}>
+          <label id="city">Sélectionner votre ville</label>
+          <select
+            name="city"
+            onChange={(e) => {
+              setDataCitySelected('loading'),
+                setCitySelected(parseInt(e.target.value));
+            }}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            {citiesList.map((city: cityInterface, key: number) => {
+              return <option value={key}>{city.nm}</option>;
+            })}
+          </select>
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+        {dataCitySelected == 'loading' ? (
+          <div className={styles.loader_container}>
+            <Image
+              src="./icons/loader.svg"
+              alt="loader icon"
+              width={50}
+              height={50}
+            />
+          </div>
+        ) : (
+          <>
+            <div className={styles.today}>
+              <span>{cities[citySelected].nm}</span>
+              <span
+                className={`wi wi-icon-${dataCitySelected[0]?.weather[0].id}`}
+              ></span>
+              <span>{`${Math.round(dataCitySelected[0]?.main.temp)} °C`}</span>
+            </div>
+            <ul className={styles.other}>
+              {dataCitySelected.map((weatherDay: any, key: number) => {
+                if (key == 0) return;
+                return (
+                  <li className={styles.element}>
+                    <span>
+                      {new Date(weatherDay.dt_txt).toString().substring(0, 3)}
+                    </span>
+                    <span
+                      className={`wi wi-icon-${weatherDay.weather[0].id}`}
+                    ></span>
+                    <span>{Math.round(weatherDay.main.temp_min)}°C</span>
+                    <span>{Math.round(weatherDay.main.temp_max)}°C</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+      </section>
     </main>
-  )
+  );
 }
